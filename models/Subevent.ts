@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 // Define the TypeScript interface for the Subevent document
 interface ISubevent extends Document {
+  _id: string;
   subevent_name?: string;
   subevent_start?: string; // Can be Date or string depending on the format
   subevent_end?: string; // Can be Date or string depending on the format

@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 
 interface IOrganisation extends Document {
+  _id: string;
   org_name?: string;
   org_email?: string;
   org_description?: string;

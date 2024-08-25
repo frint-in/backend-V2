@@ -13,6 +13,7 @@ const educationSchema = new Schema({
   });
 
   interface IProfile extends Document {
+    _id: string;
     languages?: string[];
     skills?: string[];
     achievements?: string[];

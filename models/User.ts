@@ -6,6 +6,7 @@ const organisationSchema = new Schema({
 });
 
 interface IUser extends Document {
+  _id: string;
   uname?: string;
   email?: string;
   password?: string; // +select
@@ -15,7 +16,7 @@ interface IUser extends Document {
   isVerified?: boolean;
   isOnboard?: boolean;
   application_list?: mongoose.Types.ObjectId[];
-  verifyToken?: boolean;
+  verifyToken?: string;
   verifyTokenExpiry?: Date;
   profile_details?: mongoose.Types.ObjectId;
   organisation_list?: {
@@ -23,6 +24,8 @@ interface IUser extends Document {
     role?: string;
   }[];
   refreshToken?: string; // +select
+  forgotPasswordToken?: string;
+  forgotPasswordTokenExpiry?:string
 }
 
 
@@ -37,7 +40,7 @@ const userSchema = new Schema<IUser>({
   isVerified: { type: Boolean, default: false },
   isOnboard: { type: Boolean, default: false },
   application_list: [{ type: Schema.Types.ObjectId, ref: 'Application' }],
-  verifyToken: { type: Boolean, default: false },
+  verifyToken: { type: String },
   verifyTokenExpiry: { type: Date},
   profile_details: { type: Schema.Types.ObjectId, ref: 'Profile'},
   organisation_list: [organisationSchema], // Embed the organisationSchema

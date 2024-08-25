@@ -2,10 +2,12 @@ import { z } from "zod";
 
 
 export const signUpSchema = z.object({
-    firstName: z.string(),
-    lastName: z.string(),
+    uname: z.string().min(2, { message: "uname is too short" }),
     email: z.string().min(2, { message: "email is too short" }).email({ message: "Invalid email address" }),
     password: z.string().min(10, "Password must be at least 10 characters"),
+    phno: z.number().refine((val) => val.toString().length == 10, {
+        message: "Phone number must be 10 digits long",
+      }),
     confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords must match",

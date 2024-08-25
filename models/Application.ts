@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 
 interface IApplication extends Document {
+  _id: string;
   user_id: mongoose.Types.ObjectId;
   answers_list?: string;
   resume?: string;

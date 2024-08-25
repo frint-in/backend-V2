@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 interface IJob extends Document {
+  _id: string;
   job_name?: string;
   org_details?: mongoose.Types.ObjectId; // Reference to Company model
   org_name?: string;

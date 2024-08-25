@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 // Define the TypeScript interface for the Event document
 interface IEvent extends Document {
+  _id: string;
   event_name?: string;
   event_type?: string;
   event_description?: string;
