@@ -12,8 +12,8 @@ const educationSchema = new Schema({
     end_date: { type: String} // Store dates as strings or use Date type
   });
 
-  interface IProfile extends Document {
-    _id: string;
+export  interface IProfile extends Document {
+  _id: mongoose.Types.ObjectId;
     languages?: string[];
     skills?: string[];
     achievements?: string[];

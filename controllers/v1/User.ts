@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { signInSchema, signUpSchema } from '@/lib/validations/auth';
 import { formatArrZodErrors, formatGenZodErrors } from '@/utils/validator';
-import User from '../models/User';
+import User from '../../models/User';
 
 import dotenv from 'dotenv';
 import { google } from 'googleapis';
@@ -177,3 +177,6 @@ export const signinUser = async (req: Request, res: Response) => {
     }
   }
 };
+
+
+

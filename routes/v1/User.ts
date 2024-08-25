@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { signinUser, signupUser, verifyUserEmail } from "@/controllers/User";
+import { signinUser, signupUser, verifyUserEmail } from "@/controllers/v1/User";
 
 
 

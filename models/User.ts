@@ -5,7 +5,7 @@ const organisationSchema = new Schema({
   role: { type: String }
 });
 
-interface IUser extends Document {
+export interface IUser extends Document {
   _id: string;
   uname?: string;
   email?: string;
