@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { signUpSchema } from '@/lib/validations/auth';
-import { formatZodErrors } from '@/utils/validator';
+import { signInSchema, signUpSchema } from '@/lib/validations/auth';
+import { formatArrZodErrors, formatGenZodErrors } from '@/utils/validator';
 import User from '../models/User';
 
 import dotenv from 'dotenv';
@@ -25,7 +25,7 @@ export const signupUser = async (req: Request, res: Response) => {
     if (!parsedInput.success) {
       console.error('Validation Error:', parsedInput.error.message);
 
-      const errorMessages = formatZodErrors(parsedInput.error);
+      const errorMessages = formatGenZodErrors(parsedInput.error);
       return res.status(403).json({ msg: errorMessages });
     }
 
@@ -117,5 +117,63 @@ export const verifyUserEmail = async (req: Request, res: Response): Promise<void
   } catch (err) {
     console.error("error in verifyUserEmail>>>>", err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const signinUser = async (req: Request, res: Response) => {
+  try {
+    // Validate input using Zod schema
+    const parsedInput = signInSchema.safeParse(req.body);
+    if (!parsedInput.success) {
+      // console.error('Validation Error:', parsedInput.error);
+      const errorMessages = formatArrZodErrors(parsedInput.error);
+      console.log(errorMessages);
+
+      return res.status(400).json({ message: errorMessages});
+    }
+
+    const { email, password } = parsedInput.data;
+
+    const user = await User.findOne({ email }).select("+password").exec();
+
+    if (!user) {
+      return res.status(400).json({ message: ['User not found'] });
+    }
+
+    if (!user.isVerified) {
+      return res.status(401).json({ message: ['Please verify your account'] });
+    }
+
+    if (!user.password) {
+      return res.status(500).json({ message: ['Server error: No password found'] });
+    }
+
+    const isCorrect = await bcrypt.compare(password, user.password);
+
+    if (!isCorrect) {
+      return res.status(409).json({ message: ['Incorrect password'] });
+    } else {
+      const { password, ...others } = user.toObject(); // Convert user document to plain object
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
+        expiresIn: '1h', // Adjust token expiration as needed
+      });
+
+      console.log('token>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', token);
+
+      res
+        .cookie('access_token', token, {
+          httpOnly: true,
+        })
+        .status(200)
+        .json({ others, token });
+    }
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('Signin Error:', err.message);
+      res.status(500).json({ message: err.message });
+    } else {
+      console.error('Unexpected error:', err);
+      res.status(500).json({ message: 'An unexpected error occurred' });
+    }
   }
 };

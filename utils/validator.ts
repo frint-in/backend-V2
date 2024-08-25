@@ -1,12 +1,24 @@
 import { ZodError } from 'zod';
 
 //directly inside string
-// export const formatZodErrors = (error: ZodError): string => {
-//     return error.errors.map((err) => {
-//         // Construct a readable error message for each validation issue
-//         return `Field '${err.path.join('.')}': ${err.message}`;
-//     }).join(', ');
-// };
+export const formatZodErrors = (error: ZodError): string => {
+    return error.errors.map((err) => {
+        // Construct a readable error message for each validation issue
+        return `Field '${err.path.join('.')}': ${err.message}`;
+    }).join(', ');
+}
+
+export const formatArrZodErrors = (error: ZodError)  => {
+    // const errorMessages: string[] = [];
+    //  error.errors.forEach((fieldErrors) => {
+    //       errorMessages.push(fieldErrors.message);
+    //   });
+
+    //   return errorMessages
+
+//alternative solution
+return error.errors.map((fieldError) => fieldError.message);
+}
 
 
 //giving a general error, an array of error messages with the field associated
@@ -41,7 +53,7 @@ import { ZodError } from 'zod';
 // };
 
 //only one general message based on priority
-export const formatZodErrors = (error: ZodError): { message: string } => {
+export const formatGenZodErrors = (error: ZodError): { message: string } => {
     const errorCodes = error.errors.map(err => err.code);
 
     // Define error messages based on types of errors
