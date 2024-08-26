@@ -19,6 +19,19 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 export const signupUser = async (req: Request, res: Response) => {
+      /*
+   /*  #swagger.requestBody = {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        $ref: "#/components/schemas/SignUpUser"
+                    }  
+                }
+            }
+        } 
+    */
+
   try {
     // Step 1: Validate input using Zod schema
     const parsedInput = signUpSchema.safeParse(req.body);
