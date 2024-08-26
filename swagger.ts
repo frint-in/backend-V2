@@ -6,10 +6,12 @@ const doc = {
         title: 'Frint',
         description: 'Implementation of Swagger with TypeScript'
     },
+    // host: 'localhost:8000',                 // by default: 'localhost:3000'
+    // basePath: '/api/v1',        // by default: '/'
     servers: [
         {
-            url: 'http://localhost:8000',
-            description: ''
+            url: 'http://localhost:8000/api/v1',
+            description: 'Development server v1'
         },
     ],
     components: {

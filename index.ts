@@ -5,8 +5,10 @@ import 'dotenv/config'
 import mongoose from 'mongoose'
 import userRouter from "@/routes/v1/User";
 import authRouter from '@/routes/v1/authentication'
+
 import swaggerUi from "swagger-ui-express";
 import swaggerOutput from "./swagger_output.json";
+import v1Router from './routes/v1';
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string)
 
@@ -18,8 +20,13 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cors())
 
-app.use("/api/v1/user", userRouter);
-app.use("/api/v1/auth", authRouter);
+const basePath = '/api/v1';
+
+// Use the base path when defining routes
+
+
+// Use the v1 router
+app.use('/api/v1', v1Router);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 app.listen(PORT, () => {
