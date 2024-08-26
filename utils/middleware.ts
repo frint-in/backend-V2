@@ -14,13 +14,17 @@ const oauth2Client = new google.auth.OAuth2(
 declare global {
   namespace Express {
     interface Request {
-      user: string;
-      organization: string
+      user: {
+        id: string
+      };
+      organization: {
+        id:string
+      }
     }
   }
 }
 
-
+//need to test verifyToken
 export const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.access_token;
   if (!token) {
