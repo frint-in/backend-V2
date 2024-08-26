@@ -9,6 +9,7 @@ import authRouter from '@/routes/v1/authentication'
 import swaggerUi from "swagger-ui-express";
 import swaggerOutput from "./swagger_output.json";
 import v1Router from './routes/v1';
+import cookieParser from "cookie-parser";
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string)
 
@@ -16,6 +17,7 @@ const PORT = 8000
 
 
 const app = express();
+app.use(cookieParser());
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cors())

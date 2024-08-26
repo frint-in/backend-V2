@@ -1,23 +1,18 @@
-import express, { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { signInSchema, signUpSchema } from '@/lib/validations/auth';
 import { formatArrZodErrors, formatGenZodErrors } from '@/utils/validator';
-import User from '../../models/User';
-
+import User, { IUser } from '../../models/User';
 import dotenv from 'dotenv';
-import { google } from 'googleapis';
-import mongoose from 'mongoose';
 import { sendEmail } from '@/lib/helpers/mailer';
+import Profile, { IProfile } from '@/models/Profile';
+import { handleFileUpload, isMulterFileArrayDictionary, MulterRequest } from '@/utils/upload';
+
 
 dotenv.config();
 
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.DOMAIN
-);
-
+//create
 export const signupUser = async (req: Request, res: Response) => {
       /*
    /*  #swagger.requestBody = {
@@ -190,6 +185,128 @@ export const signinUser = async (req: Request, res: Response) => {
     }
   }
 };
+
+//read
+
+
+//update
+export const updateUser = async (req: MulterRequest, res: Response) => {
+  try {
+    console.log('req body in form upload>>>>>>', req.body);
+    const bodyMain = req.body.bodyMain ? JSON.parse(req.body.bodyMain) : {};
+    console.log('Parsed bodyMain:', bodyMain);
+    console.log('req files in form upload>>>>>>', req.files);
+
+    const userId = req.user.id;
+
+    // Find user by ID
+    const user: IUser | null = await User.findById(userId).exec();
+
+    console.log('user',user );
+    
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Find profile by ID
+    let profile: IProfile | null = await Profile.findById(user.profile_details).exec();
+    if (!profile) {
+      // Create a new profile if none exists
+      profile = new Profile();
+      await profile.save();
+
+      // Update the user with the new profile ID
+      user.profile_details = profile._id;
+      await user.save();
+    }
+    console.log('profile',profile );
+
+
+
+    const updatesUser: Partial<IUser> = {};
+    const updatesProfile: Partial<IProfile> = {};
+
+    // Handle file upload
+    if (isMulterFileArrayDictionary(req.files)) {
+      const profileImg: Express.Multer.File | undefined = req.files['profileImg'] ? req.files['profileImg'][0] : undefined;
+      const resume: Express.Multer.File | undefined = req.files['resume'] ? req.files['resume'][0] : undefined;
+
+      // const profileImgUrl = await handleFileUpload(profileImg, 'profileImg', user, profile);
+
+      const profileImgUrl = await handleFileUpload({
+        type: 'profileImg',
+        file: profileImg,
+        oldFileUrl: profile.avatar
+      });
+      const resumeUrl = await handleFileUpload({
+        type: 'resume',
+        file: resume,
+        oldFileUrl: profile.resume
+      });
+
+      if (profileImgUrl) updatesProfile['avatar'] = profileImgUrl;
+      if (resumeUrl) updatesProfile['resume'] = resumeUrl;
+    } else {
+      console.log('No files uploaded');
+    }
+
+    // Define valid fields for each model
+    const userFields = ['uname', 'email', 'phno', 'specialisation', 'organisation_list', 'application_list', 'isGoogleUser', 'isVerified', 'isOnboard'];
+    const profileFields = ['languages', 'skills', 'achievements', 'experience', 'description', 'dob', 'gender', 'education_details'];
+
+
+    for (const key in req.body) {
+      if (req.body[key] !== '' && key !== 'finalStep') {
+        const value = req.body[key];
+
+        // If value is a string and looks like JSON, parse it
+        if (typeof value === 'string' && (value.startsWith('[') || value.startsWith('{'))) {
+          try {
+            const parsedValue = JSON.parse(value);
+            if (userFields.includes(key)) {
+              updatesUser[key as keyof IUser] = parsedValue;
+            } else if (profileFields.includes(key)) {
+              updatesProfile[key as keyof IProfile] = parsedValue;
+            }
+          } catch (e) {
+            console.error('Error parsing JSON for key', key, e);
+          }
+        } else {
+          // Directly assign the value for non-JSON fields
+          if (userFields.includes(key)) {
+            updatesUser[key as keyof IUser] = value;
+          } else if (profileFields.includes(key)) {
+            updatesProfile[key as keyof IProfile] = value;
+          }
+        }
+      }
+    }
+
+    const isFinalStep = req.body.finalStep === 'true';
+    
+    if (isFinalStep) {
+      // Add isOnboarded property to updates objectf
+      updatesUser.isOnboard = true;
+    }
+    // Update the Profile document
+    if (Object.keys(updatesProfile).length > 0) {
+      await Profile.findByIdAndUpdate(user.profile_details, { $set: updatesProfile }, { new: true, runValidators: true }).exec();
+    }
+
+    // Update the User document
+    if (Object.keys(updatesUser).length > 0) {
+      await User.findByIdAndUpdate(userId, { $set: updatesUser }, { new: true, runValidators: true }).exec();
+    }
+
+    const updatedUser = await User.findById(userId).populate('profile_details').lean();
+    res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+
+  } catch (err) {
+    console.log('Error in form upload:', err);
+    res.status(500).json([{ message: 'Internal server error'}]);
+  }
+};
+
+
+//delete
 
 
 
