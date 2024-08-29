@@ -44,3 +44,5 @@ export const orgSignupSchema = organizationSchema.extend({org_confirmPassword: z
 })
 
 export type TorgSignupSchema = z.infer<typeof orgSignupSchema>;
+export type TorganisationPartialSchema = z.infer<typeof organisationPartialSchema>;
+

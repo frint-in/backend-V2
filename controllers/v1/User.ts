@@ -219,7 +219,7 @@ export const updateUser = async (req: MulterRequest, res: Response) => {
       await profile.save();
 
       // Update the user with the new profile ID
-      user.profile_details = profile._id;
+      user.profile_details = profile.id;
       await user.save();
     }
     console.log('profile',profile );

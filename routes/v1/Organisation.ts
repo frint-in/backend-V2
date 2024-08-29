@@ -1,4 +1,5 @@
-import { signupOrganisation } from "@/controllers/v1/Organisation";
+import { signupOrganisation, updateOrganisation } from "@/controllers/v1/Organisation";
+import { verifyToken } from "@/utils/middleware";
 import express, { Request, Response } from "express";
 import multer from "multer";
 
@@ -9,7 +10,7 @@ const upload = multer({
   
 const router = express.Router();
 
-router.post("/signup",upload.fields([
+router.post("/signup",verifyToken, upload.fields([
     { name: "org_logo", maxCount: 1 },
   ]), signupOrganisation);
 // router.post("/signin",signinUser);
@@ -17,10 +18,9 @@ router.post("/signup",upload.fields([
 //read
 
 //update
-// router.put("/updateuser", verifyToken,upload.fields([
-//     { name: "profileImg", maxCount: 1 },
-//     { name: "resume", maxCount: 1 },
-//   ]), updateUser);
+router.put("/update/:id", verifyToken,upload.fields([
+  { name: "org_logo", maxCount: 1 },
+  ]), updateOrganisation);
 
 //delete
 // router.delete("/:id", verifyToken, deleteUser);

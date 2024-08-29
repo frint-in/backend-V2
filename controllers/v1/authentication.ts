@@ -93,7 +93,9 @@ export const linkGoogleAccount = async (req: Request, res: Response) => {
       profile = await Profile.findById(user.profile_details).exec();
     } else {
       profile = new Profile();
-      user.profile_details = profile._id ; 
+      //caution
+      //might casuse error, cross check during end to end test
+      user.profile_details = profile.id ; 
     }
 
     // Update the user's profile with Google account details

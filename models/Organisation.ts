@@ -21,7 +21,7 @@ export interface IOrganisation extends Document {
   verifyToken: string;
   isOnboard?: boolean;
   verifyTokenExpiry: Date;
-  org_confirmPassword: string;
+
 }
 
 // Define the Organisation schema

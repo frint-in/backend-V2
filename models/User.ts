@@ -15,13 +15,13 @@ export interface IUser extends Document {
   isGoogleUser?: boolean;
   isVerified?: boolean;
   isOnboard?: boolean;
-  application_list?: mongoose.Types.ObjectId[];
+  application_list?: string[];
   verifyToken?: string;
   verifyTokenExpiry?: Date;
-  profile_details?: mongoose.Types.ObjectId;
+  profile_details?: string
   organisation_list?: {
-    org_id?: mongoose.Types.ObjectId;
-    role?: string;
+    org_id?: string
+    role?: 'maintainer' | 'owner';
   }[];
   refreshToken?: string; // +select
   forgotPasswordToken?: string;
