@@ -2,24 +2,27 @@ import nodemailer, { Transporter, SendMailOptions } from 'nodemailer';
 import bcrypt from 'bcrypt';
 import User from '@/models/User';
 import { IMeetingDetails, ISendEmail, ISendEmailMain } from '../types';
+import Organisation from '@/models/Organisation';
 
 
-export const sendEmail = async ({ email, emailType, userId }: ISendEmail): Promise<string> => {
+export const sendEmail = async ({ email, emailType, entityId, entityType }: ISendEmail): Promise<string> => {
   try {
     // create a hashed token
-    const hashedToken = await bcrypt.hash(userId.toString(), 10);
+    const hashedToken = await bcrypt.hash(entityId.toString(), 10);
 
-    if (emailType === 'VERIFY') {
-      await User.findByIdAndUpdate(userId, {
-        verifyToken: hashedToken,
-        verifyTokenExpiry: Date.now() + 3600000, // token valid for 1hr
-      });
-    } else if (emailType === 'RESET') {
-      await User.findByIdAndUpdate(userId, {
-        forgotPasswordToken: hashedToken,
-        forgotPasswordTokenExpiry: Date.now() + 3600000,
-      });
-    }
+    // Update the entity (User or Organization) based on the entityType
+    const Model = entityType === "USER" ? User : Organisation; // Assuming you have an Organization model
+    const updateObj = emailType === "VERIFY"
+      ? { verifyToken: hashedToken, verifyTokenExpiry: Date.now() + 3600000 }
+      : { forgotPasswordToken: hashedToken, forgotPasswordTokenExpiry: Date.now() + 3600000 };
+
+      if (entityType === "USER") {
+    await User.findByIdAndUpdate(entityId, updateObj);
+      }
+
+      if (entityType === "ORGANISATION") {
+    await Organisation.findByIdAndUpdate(entityId, updateObj);
+      }
 
     const transport = nodemailer.createTransport({
       service: 'gmail',
@@ -47,7 +50,7 @@ export const sendEmail = async ({ email, emailType, userId }: ISendEmail): Promi
                 Click the button below to ${emailType === 'VERIFY' ? 'verify your email' : 'reset your password'}:
               </p>
               <div style="text-align: center; margin: 20px 0;">
-                <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}" style="background-color: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}&type=${entityType.toLowerCase()}" style="background-color: #2196F3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
                   ${emailType === 'VERIFY' ? 'Verify Email' : 'Reset Password'}
                 </a>
               </div>
@@ -55,8 +58,8 @@ export const sendEmail = async ({ email, emailType, userId }: ISendEmail): Promi
                 Or copy and paste the following link into your browser:
               </p>
               <p style="word-break: break-all;">
-                <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}" style="color: #2196F3;">
-                  ${process.env.DOMAIN}/verifyemail?token=${hashedToken}
+                <a href="${process.env.DOMAIN}/verifyemail?token=${hashedToken}&type=${entityType.toLowerCase()}" style="color: #2196F3;">
+                  ${process.env.DOMAIN}/verifyemail?token=${hashedToken}&type=${entityType.toLowerCase()}
                 </a>
               </p>
               <p>

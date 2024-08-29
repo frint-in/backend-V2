@@ -29,7 +29,7 @@ const storageGoogle = new Storage({
   
 
 
-type FileType = 'profileImg' | 'resume' | 'otherType'; // Extend this with more types as needed
+type FileType = 'profileImg' | 'resume' | 'org_logo'; // Extend this with more types as needed
 
 interface FileUploadOptions {
   type: FileType;
@@ -42,7 +42,11 @@ interface FileUploadOptions {
 export const handleFileUpload = async (options: FileUploadOptions): Promise<string | undefined> => {
   const { file, type, oldFileUrl, onFileDelete, onFileUpload} = options;
 
-  if (!file) return undefined;
+  if (!file){ 
+    console.log(`${type} not uploaded. Returning`);
+    
+    return undefined;
+  }
 
   // If there's an old file URL, delete the old file
   if (oldFileUrl) {

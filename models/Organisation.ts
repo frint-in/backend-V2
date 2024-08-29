@@ -1,8 +1,9 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 
-interface IOrganisation extends Document {
+export interface IOrganisation extends Document {
   _id: string;
+  org_password?: string; 
   org_name?: string;
   org_email?: string;
   org_description?: string;
@@ -16,11 +17,16 @@ interface IOrganisation extends Document {
   org_refreshToken?: string;
   org_establish?: number;
   org_social_media?: { platform?: string; link?: string }[];
-  org_isVerified?: boolean;
+  isVerified?: boolean;
+  verifyToken: string;
+  isOnboard?: boolean;
+  verifyTokenExpiry: Date;
+  org_confirmPassword: string;
 }
 
 // Define the Organisation schema
 const organisationSchema = new Schema<IOrganisation>({
+  org_password: {type: String,  select: false },
   org_name: { type: String },
   org_email: { type: String },
   org_description: { type: String },
@@ -35,7 +41,7 @@ const organisationSchema = new Schema<IOrganisation>({
   },
   org_logo: { type: String },
   org_isGoogleUser: { type: Boolean },
-  org_refreshToken: { type: String },
+  org_refreshToken: { type: String, select: false },
   org_establish: { type: Number },
   org_social_media: [
     {
@@ -43,7 +49,11 @@ const organisationSchema = new Schema<IOrganisation>({
       link: { type: String }
     }
   ],
-  org_isVerified: { type: Boolean }
+  isVerified: { type: Boolean, default: false },
+  isOnboard: { type: Boolean, default: false },
+  verifyToken: { type: String }, // Add token field
+  verifyTokenExpiry: { type: Date } // Add token expiry field
+
 });
 
 // Create and export the Organisation model

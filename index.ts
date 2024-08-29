@@ -8,7 +8,7 @@ import authRouter from '@/routes/v1/authentication'
 
 import swaggerUi from "swagger-ui-express";
 import swaggerOutput from "./swagger_output.json";
-import v1Router from './routes/v1';
+import v1Router from './routes';
 import cookieParser from "cookie-parser";
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string)
@@ -29,6 +29,7 @@ const basePath = '/api/v1';
 
 // Use the v1 router
 app.use('/api/v1', v1Router);
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerOutput));
 app.listen(PORT, () => {

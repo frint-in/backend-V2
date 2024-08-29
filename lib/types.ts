@@ -1,9 +1,9 @@
 export interface ISendEmail {
   email: string;
   emailType: "VERIFY" | "RESET";
-  userId: string;
+  entityId: string;
+  entityType: "USER" | "ORGANISATION";
 }
-
 export interface IMeetingDetails {
   summary: string;
   description: string;

@@ -1,6 +1,4 @@
 import express, { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { signinUser, signupUser, updateUser, verifyUserEmail } from "@/controllers/v1/User";
 import { verifyToken } from "@/utils/middleware";
 import multer from "multer";
@@ -29,7 +27,5 @@ router.put("/updateuser", verifyToken,upload.fields([
 //delete
 // router.delete("/:id", verifyToken, deleteUser);
 
-//verifyEmail
-router.post("/verifyemail", verifyUserEmail);
 
 export default router;

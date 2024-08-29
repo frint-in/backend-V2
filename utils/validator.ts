@@ -4,7 +4,7 @@ import { ZodError } from 'zod';
 export const formatZodErrors = (error: ZodError): string => {
     return error.errors.map((err) => {
         // Construct a readable error message for each validation issue
-        return `Field '${err.path.join('.')}': ${err.message}`;
+        return `Field '${err.path.join('.')}'is ${err.message}`;
     }).join(', ');
 }
 
@@ -17,7 +17,7 @@ export const formatArrZodErrors = (error: ZodError)  => {
     //   return errorMessages
 
 //alternative solution
-return error.errors.map((fieldError) => fieldError.message);
+return error.errors.map((fieldError) => `Field '${fieldError.path.join('.')}'is ${fieldError.message}`);
 }
 
 

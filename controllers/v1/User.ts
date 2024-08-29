@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { signInSchema, signUpSchema } from '@/lib/validations/auth';
+import { signInSchema, signUpSchema } from '@/lib/validations/schema';
 import { formatArrZodErrors, formatGenZodErrors } from '@/utils/validator';
 import User, { IUser } from '../../models/User';
 import dotenv from 'dotenv';
@@ -34,7 +34,7 @@ export const signupUser = async (req: Request, res: Response) => {
       console.error('Validation Error:', parsedInput.error.message);
 
       const errorMessages = formatGenZodErrors(parsedInput.error);
-      return res.status(403).json({ msg: errorMessages });
+      return res.status(403).json({ message: errorMessages });
     }
 
     console.log(parsedInput.data);
@@ -60,7 +60,12 @@ export const signupUser = async (req: Request, res: Response) => {
     console.log('savedUser', savedUser);
 
     // Step 5: Send verification email
-    const mailResponse = await sendEmail({ email: email, emailType: "VERIFY", userId: savedUser._id.toString() });
+    const mailResponse = await sendEmail({ 
+      email: email, 
+      emailType: "VERIFY", 
+      entityId: savedUser._id.toString(),
+      entityType: "USER"
+    });
     console.log('mailresponse', mailResponse);
     if (mailResponse) {
       res.status(200).json({ message: 'Verification mail sent, please check your inbox' });

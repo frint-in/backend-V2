@@ -168,3 +168,58 @@ export const linkGoogleAccountOrganisation = async (req: Request, res: Response)
     res.status(500).json({ message: 'Error while handling Google account linking' });
   }
 };
+
+
+
+
+
+export const verifyEmail = async (req: Request, res: Response) => {
+  try {
+    console.log("req body>>>>>>>>>", req.body);
+    const { token, type } = req.body; // Include type to differentiate between User and Organisation
+
+    console.log("token>>>>>", token);
+
+    // Determine the model based on the type provided
+
+
+
+    let entity
+    switch (type) {
+      case 'user':
+        entity = await User.findOne({
+          verifyToken: token,
+          verifyTokenExpiry: { $gt: Date.now() },
+        });
+    
+        break;
+      case 'organisation':
+        entity = await Organisation.findOne({
+          verifyToken: token,
+          verifyTokenExpiry: { $gt: Date.now() },
+        });
+       break;
+      default:
+        break;
+    }
+
+    if (!entity) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    console.log("entity>>>>", entity);
+
+    entity.isVerified = true;
+    entity.verifyToken = undefined;
+    entity.verifyTokenExpiry = undefined;
+    await entity.save();
+
+    res.status(200).json({
+      message: "Email verified successfully",
+      success: true,
+    });
+  } catch (err) {
+    console.error("error in verifyUserEmail>>>>", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
