@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import { sendEmail } from "@/lib/helpers/mailer";
 import Profile, { IProfile } from "@/models/Profile";
 import {
+  handleFileDelete,
   handleFileUpload,
   isMulterFileArrayDictionary,
   MulterRequest,
@@ -23,7 +24,7 @@ import { parseFormData } from "@/utils/parser";
 import Organisation, { IOrganisation } from "@/models/Organisation";
 import Event from "@/models/Event";
 import mongoose from "mongoose";
-import { createEventSchema, TcreateEventSchema } from "@/lib/validations/Event";
+import { createEventSchema, eventPartialSchema, TcreateEventSchema, TeventPartialSchema } from "@/lib/validations/Event";
 
 dotenv.config();
 
@@ -42,7 +43,7 @@ export const createEvent = async (req: Request, res: Response) => {
 
     // Check if orgId is provided
     if (!orgId) {
-      return res.status(400).json({ error: 'Organisation ID is required' });
+      return res.status(400).json({ message: ['Organisation ID is required'] });
     }
 
 
@@ -68,7 +69,7 @@ export const createEvent = async (req: Request, res: Response) => {
     const org = await Organisation.findById(orgId)
 
     if (!org) {
-      return res.status(404).json({ error: 'Organisation not found' });
+      return res.status(404).json({ message: ['Organisation not found'] });
     }
 
 
@@ -77,7 +78,7 @@ export const createEvent = async (req: Request, res: Response) => {
     const isMaintainer = org.maintainer_list.some(maintainerId => maintainerId === userId)
 
       if (!isMaintainer) {
-      return res.status(403).json({ error: 'You are not authorized to create an event for this organization' });
+      return res.status(403).json({ message: ['You are not authorized to create an event for this organization'] });
     }
 
 
@@ -85,7 +86,7 @@ export const createEvent = async (req: Request, res: Response) => {
       const existingEvent = await Event.findOne({ event_name });
       if (existingEvent) {
         console.log('existingOrg', existingEvent);
-        return res.status(409).json({ message: 'Organization already exists' });
+        return res.status(409).json({ message: ['Organization already exists'] });
       }
 
 
@@ -109,7 +110,7 @@ export const createEvent = async (req: Request, res: Response) => {
         updates.event_poster = eventPosterUrl;
       }else{
         console.log('no file uploaded');
-      return res.status(500).json({ message: "Image Upload failed. Please try again" });
+      return res.status(500).json({ message: ["Image Upload failed. Please try again"] });
       }
 
       
@@ -131,6 +132,133 @@ export const createEvent = async (req: Request, res: Response) => {
     return res.status(201).json(savedEvent);
   } catch (error) {
     console.error('Error creating event:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ message: ['Internal server error'] });
   }
 };
+
+
+
+export const updateEvent = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id; // Assuming req.user is populated by middleware
+    const { eventId } = req.params; // Assuming the event ID is passed as a URL parameter
+    const { orgId } = req.params; // Assuming the org ID is passed as a URL parameter
+
+    console.log("orgId>>>>>>>", orgId);
+    
+    // Check if orgId and eventId are provided
+    if (!orgId) {
+      return res.status(400).json({ error: 'Organisation ID is required' });
+    }
+    if (!eventId) {
+      return res.status(400).json({ error: 'Event ID is required' });
+    }
+
+    // Validate input using Zod schema
+    const parsedBody = parseFormData(req.body);
+    const parsedInput = eventPartialSchema.safeParse(parsedBody);
+    if (!parsedInput.success) {
+      const errorMessages = formatArrZodErrors(parsedInput.error);
+      return res.status(403).json({ message: errorMessages });
+    }
+
+    // Get the organization
+    const org = await Organisation.findById(orgId);
+
+    console.log("org>>>>>>>>", org);
+    
+    if (!org) {
+      return res.status(404).json({ message: ['Organisation not found'] });
+    }
+
+    // Check if the user is a maintainer
+    const isMaintainer = org.maintainer_list.some((maintainerId) => maintainerId.toString() === userId);
+    if (!isMaintainer) {
+      return res.status(403).json({ error: 'You are not authorized to update this event' });
+    }
+
+    // Find the existing event
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    const updates: TeventPartialSchema = { ...parsedInput.data };
+
+    // Handle file upload
+    if (isMulterFileArrayDictionary(req.files)) {
+      const event_poster: Express.Multer.File | undefined = req.files["event_poster"]
+        ? req.files["event_poster"][0]
+        : undefined;
+
+      if (event_poster) {
+        const eventPosterUrl = await handleFileUpload({
+          type: "event_poster",
+          file: event_poster,
+          oldFileUrl: event.event_poster
+        });
+
+        if (eventPosterUrl) {
+          updates.event_poster = eventPosterUrl;
+        } else {
+          console.log('No file uploaded');
+        }
+      }
+    } else {
+      console.log("No files uploaded");
+    }
+
+    // Update the event with new details
+    const updatedEvent = await Event.findByIdAndUpdate(eventId, updates, { new: true });
+    res.status(200).json({
+      message: 'Event updated successfully',
+      event: updatedEvent,
+    });
+
+  } catch (error) {
+    console.error('Error updating event:', error);
+    return res.status(500).json({ message: ['Internal server error'] });
+  }
+};
+
+
+
+
+export const deleteEvent = async (req: Request, res: Response) => {
+  try {
+
+    const userId = req.user.id
+
+   const {orgId, eventId} = req.params
+
+   const org = await Organisation.findById(orgId)
+
+   if (!org) {
+    return res.status(404).json({ message: ['Org not found'] });
+  }
+    const event = await Event.findById(eventId)
+
+    if (!event) {
+      return res.status(404).json({ message: ['Event not found'] });
+    }
+
+    const isMaintainer = org.maintainer_list.some(maintainerId => maintainerId === userId)
+
+    if (!isMaintainer) {
+    return res.status(403).json({ message: ['You are not authorized to create an event for this organization'] });
+  }
+
+
+
+    await handleFileDelete({oldFileUrl: event.event_poster})
+    
+    await event.deleteOne()
+
+    return res.status(200).json({ message: ['Event Deleted Successfully'] });
+
+
+} catch (error) {
+  console.error('Error deleting event:', error);
+  return res.status(500).json({ message: ['Internal server error'] });
+}
+}

@@ -159,7 +159,11 @@ export const updateOrganisation = async (req: Request, res: Response) => {
     const orgId = req.params.id;
 
     console.log('orgId', orgId);
-    
+    const org = await Organisation.findById(orgId);
+    if (!org) {
+      return res.status(404).json({ error: 'Organisation not found' });
+    }
+
 
     const user = await User.findOne({_id:userId, 'organisation_list.org_id': orgId}).populate('organisation_list')
     // If the user is not found or the organization is not in the list
@@ -193,6 +197,7 @@ export const updateOrganisation = async (req: Request, res: Response) => {
       const orgLogoUrl = await handleFileUpload({
         type: "org_logo",
         file: org_logo,
+        oldFileUrl: org.org_logo
       });
 
       if (orgLogoUrl) {

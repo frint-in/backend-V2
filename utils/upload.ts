@@ -32,8 +32,8 @@ const storageGoogle = new Storage({
 type FileType = 'profileImg' | 'resume' | 'org_logo' | 'event_poster'; // Extend this with more types as needed
 
 interface FileUploadOptions {
-  type: FileType;
-  file: Express.Multer.File | undefined;
+  type?: FileType;
+  file?: Express.Multer.File | undefined;
   oldFileUrl?: string;
   onFileDelete?: (fileName: string) => Promise<void>; // Optional custom delete logic
   onFileUpload?: (fileName: string) => Promise<void>; // Optional custom upload logic
@@ -83,6 +83,23 @@ export const handleFileUpload = async (options: FileUploadOptions): Promise<stri
     blobStream.end(file.buffer);
   });
 };
+
+export const handleFileDelete =  async (options: FileUploadOptions) => {
+  const {  oldFileUrl } = options;
+
+  // If there's an old file URL, delete the old file
+  if (oldFileUrl) {
+    const oldFileName = oldFileUrl.split('/').pop();
+    const oldFile = bucket.file(oldFileName as string);
+    const [exists] = await oldFile.exists();
+    if (exists) {
+      await oldFile.delete();
+      console.log("Old file deleted successfully", oldFileName);
+    } else {
+      console.log(`${oldFileUrl} not found in GCS bucket:`);
+    }
+  }
+}
 
 
 

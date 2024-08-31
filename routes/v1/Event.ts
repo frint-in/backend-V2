@@ -1,4 +1,4 @@
-import { createEvent } from "@/controllers/v1/Event";
+import { createEvent, deleteEvent, updateEvent } from "@/controllers/v1/Event";
 import { signupOrganisation, updateOrganisation } from "@/controllers/v1/Organisation";
 import { verifyToken } from "@/utils/middleware";
 import express, { Request, Response } from "express";
@@ -19,12 +19,12 @@ router.post("/create/:orgId", verifyToken, upload.fields([
 //read
 
 //update
-router.put("/update/:id", verifyToken,upload.fields([
+router.put("/update/:orgId/:eventId", verifyToken,upload.fields([
   { name: "org_logo", maxCount: 1 },
-  ]), updateOrganisation);
+  ]), updateEvent);
 
 //delete
-// router.delete("/:id", verifyToken, deleteUser);
+router.delete("/delete/:orgId/:eventId", verifyToken, deleteEvent);
 
 
 export default router;

@@ -70,7 +70,7 @@ export const signupUser = async (req: Request, res: Response) => {
     if (mailResponse) {
       res.status(200).json({ message: 'Verification mail sent, please check your inbox' });
     } else {
-      res.status(500).json({ message: 'An error occurred during email verification' });
+      res.status(500).json({ message: ['An error occurred during email verification'] });
     }
 
     // Optional: Step 6: Send OTP via SMS (Currently commented out)
@@ -88,7 +88,7 @@ export const signupUser = async (req: Request, res: Response) => {
       res.status(500).json({ message: err.message });
     } else {
       console.error('Unexpected error:', err);
-      res.status(500).json({ message: 'An unexpected error occurred' });
+      res.status(500).json({ message: ['An unexpected error occurred'] });
     }
   }
 };
@@ -102,7 +102,7 @@ export const verifyUserEmail = async (req: Request, res: Response): Promise<void
 
     // Ensure token is a string
     if (typeof token !== 'string') {
-      res.status(400).json({ message: "Invalid token format" });
+      res.status(400).json({ message: ["Invalid token format"] });
       return;
     }
 
@@ -112,7 +112,7 @@ export const verifyUserEmail = async (req: Request, res: Response): Promise<void
     }).exec();
 
     if (!user) {
-      res.status(400).json({ message: "Invalid Token" });
+      res.status(400).json({ message: ["Invalid Token"] });
       return;
     }
 
@@ -183,10 +183,10 @@ export const signinUser = async (req: Request, res: Response) => {
   } catch (err) {
     if (err instanceof Error) {
       console.error('Signin Error:', err.message);
-      res.status(500).json({ message: err.message });
+      res.status(500).json({ message: [err.message]});
     } else {
       console.error('Unexpected error:', err);
-      res.status(500).json({ message: 'An unexpected error occurred' });
+      res.status(500).json({ message: ['An unexpected error occurred'] });
     }
   }
 };
@@ -209,7 +209,7 @@ export const updateUser = async (req: MulterRequest, res: Response) => {
 
     console.log('user',user );
     
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ message: ['User not found'] });
 
     // Find profile by ID
     let profile: IProfile | null = await Profile.findById(user.profile_details).exec();
@@ -306,7 +306,7 @@ export const updateUser = async (req: MulterRequest, res: Response) => {
 
   } catch (err) {
     console.log('Error in form upload:', err);
-    res.status(500).json([{ message: 'Internal server error'}]);
+    res.status(500).json([{ message: ['Internal server error']}]);
   }
 };
 
