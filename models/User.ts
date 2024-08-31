@@ -6,7 +6,7 @@ const organisationSchema = new Schema({
 });
 
 export interface IUser extends Document {
-  _id: string;
+  _id: mongoose.Types.ObjectId;
   uname?: string;
   email?: string;
   password?: string; // +select
@@ -20,8 +20,8 @@ export interface IUser extends Document {
   verifyTokenExpiry?: Date;
   profile_details?: string
   organisation_list?: {
-    org_id?: string
-    role?: 'maintainer' | 'owner';
+    org_id: mongoose.Types.ObjectId
+    role: 'maintainer' | 'owner';
   }[];
   refreshToken?: string; // +select
   forgotPasswordToken?: string;

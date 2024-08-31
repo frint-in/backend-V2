@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 
 export interface IOrganisation extends Document {
-  _id: string;
+  _id: mongoose.Types.ObjectId;
   org_password?: string; 
   org_name?: string;
   org_email?: string;
@@ -21,7 +21,7 @@ export interface IOrganisation extends Document {
   verifyToken: string;
   isOnboard?: boolean;
   verifyTokenExpiry: Date;
-
+  maintainer_list: string[]
 }
 
 // Define the Organisation schema
@@ -52,8 +52,8 @@ const organisationSchema = new Schema<IOrganisation>({
   isVerified: { type: Boolean, default: false },
   isOnboard: { type: Boolean, default: false },
   verifyToken: { type: String }, // Add token field
-  verifyTokenExpiry: { type: Date } // Add token expiry field
-
+  verifyTokenExpiry: { type: Date }, // Add token expiry field
+  maintainer_list: {type: [String]}
 });
 
 // Create and export the Organisation model

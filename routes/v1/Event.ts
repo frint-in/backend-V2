@@ -1,3 +1,4 @@
+import { createEvent } from "@/controllers/v1/Event";
 import { signupOrganisation, updateOrganisation } from "@/controllers/v1/Organisation";
 import { verifyToken } from "@/utils/middleware";
 import express, { Request, Response } from "express";
@@ -10,9 +11,9 @@ const upload = multer({
   
 const router = express.Router();
 
-router.post("/signup",verifyToken, upload.fields([
-    { name: "org_logo", maxCount: 1 },
-  ]), signupOrganisation);
+router.post("/create/:orgId", verifyToken, upload.fields([
+    { name: "event_poster", maxCount: 1 },
+  ]), createEvent);
 // router.post("/signin",signinUser);
 
 //read

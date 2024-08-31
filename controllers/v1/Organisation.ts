@@ -26,6 +26,10 @@ dotenv.config();
 
 export const signupOrganisation = async (req: Request, res: Response) => {
   try {
+    const userId= req.user.id;
+
+
+
     console.log(req.body);
     const parsedBody = parseFormData(req.body);
     console.log("parsedBody", parsedBody);
@@ -54,6 +58,11 @@ export const signupOrganisation = async (req: Request, res: Response) => {
 
     const updates: TorgSignupSchema = { ...parsedInput.data };
 
+    //push the userid into the maintainer list
+    updates.maintainer_list = []
+
+    updates.maintainer_list.push(userId)
+
     // Handle file upload
     if (isMulterFileArrayDictionary(req.files)) {
       const org_logo: Express.Multer.File | undefined = req.files["org_logo"]
@@ -71,7 +80,7 @@ export const signupOrganisation = async (req: Request, res: Response) => {
         updates.org_logo = orgLogoUrl;
       }else{
         console.log('no file uploaded');
-      // return res.status(500).json({ message: "Image Upload failed. Please try again" });
+      return res.status(500).json({ message: "Image Upload failed. Please try again" });
       }
 
       
@@ -98,7 +107,6 @@ export const signupOrganisation = async (req: Request, res: Response) => {
     console.log('savedOrg', savedOrg);
 
     //Update the user's organisation_list
-    const userId= req.user.id;
 
     console.log('userId',userId);
     

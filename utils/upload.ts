@@ -29,7 +29,7 @@ const storageGoogle = new Storage({
   
 
 
-type FileType = 'profileImg' | 'resume' | 'org_logo'; // Extend this with more types as needed
+type FileType = 'profileImg' | 'resume' | 'org_logo' | 'event_poster'; // Extend this with more types as needed
 
 interface FileUploadOptions {
   type: FileType;

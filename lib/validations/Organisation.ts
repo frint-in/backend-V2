@@ -23,7 +23,8 @@ export const organizationSchema = z.object({
     org_establish: z.number().min(1000, "Year must be a four-digit number.").max(new Date().getFullYear(), "Year cannot be in the future."),
     isVerified: z.boolean(),
     verifyToken: z.string(), // Add token field
-    verifyTokenExpiry: z.date() // Add token expiry field
+    verifyTokenExpiry: z.date(), // Add token expiry field
+    maintainer_list: z.array(z.string().min(1, "id cannot be empty"))
   }).strict();
 
 
