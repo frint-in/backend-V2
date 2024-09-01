@@ -22,7 +22,7 @@ const applicationSchema = new Schema<IApplication>({
     required: true,
     default: "pending", // Default value if not provided
   },
-});
+},{timestamps: true});
 
 // Create and export the Application model
 const Application = mongoose.model<IApplication>('Application', applicationSchema);

@@ -84,9 +84,7 @@ export const signupOrganisation = async (req: Request, res: Response) => {
       }
 
       
-    } else {
-      console.log("No files uploaded");
-    }
+    } 
 
     // Destructure to remove org_confirmPassword and org_password
     const { org_confirmPassword, org_password, ...orgData  } = updates; // Use 'updates' instead of 'parsedInput.data'

@@ -10,7 +10,7 @@ interface IEvent extends Document {
   event_venue?: string;
   event_start?: string; // Can be Date or string depending on the format
   event_end?: string; // Can be Date or string depending on the format
-  subevent_list?: string[]; // This can be an array or a single ObjectId depending on the requirement
+  subevent_list: string[]; // This can be an array or a single ObjectId depending on the requirement
   event_poster?: string;
   event_sponsered?: string;
 }
@@ -26,7 +26,7 @@ const eventSchema = new Schema<IEvent>({
   subevent_list: [{type: mongoose.Schema.Types.ObjectId, ref: 'Subevent' }], // Assuming 'Subevent' is a model. Update accordingly.
   event_poster: { type: String }, // Optional field
   event_sponsered: { type: String } // Optional field
-});
+},{timestamps: true});
 
 // Create the Event model
 const Event = mongoose.model<IEvent>('Event', eventSchema);

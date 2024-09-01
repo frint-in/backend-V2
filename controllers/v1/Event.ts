@@ -48,6 +48,8 @@ export const createEvent = async (req: Request, res: Response) => {
 
 
     console.log(req.body);
+    console.log(req.files);
+    
     const parsedBody = parseFormData(req.body);
     console.log("parsedBody", parsedBody);
 

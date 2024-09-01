@@ -54,7 +54,7 @@ const organisationSchema = new Schema<IOrganisation>({
   verifyToken: { type: String }, // Add token field
   verifyTokenExpiry: { type: Date }, // Add token expiry field
   maintainer_list: {type: [String]}
-});
+},{timestamps: true});
 
 // Create and export the Organisation model
 const Organisation = mongoose.model<IOrganisation>('Organisation', organisationSchema);

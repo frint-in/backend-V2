@@ -48,7 +48,7 @@ const profileSchema = new Schema<IProfile>({
   education_details: [educationSchema], // Embed the education schema
   avatar: { type: String},
   resume: { type: String},
-});
+},{timestamps: true});
 
 const Profile = mongoose.model<IProfile>('Profile', profileSchema);
 

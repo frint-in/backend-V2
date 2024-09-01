@@ -63,7 +63,7 @@ const jobSchema = new Schema<IJob>({
     },
   ],
   org_email: { type: String},
-});
+},{timestamps: true});
 
 // Create and export the Job model
 const Job = mongoose.model<IJob>("Job", jobSchema);

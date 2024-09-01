@@ -29,7 +29,7 @@ const storageGoogle = new Storage({
   
 
 
-type FileType = 'profileImg' | 'resume' | 'org_logo' | 'event_poster'; // Extend this with more types as needed
+type FileType = 'profileImg' | 'resume' | 'org_logo' | 'event_poster' | 'subevent_poster'; // Extend this with more types as needed
 
 interface FileUploadOptions {
   type?: FileType;
@@ -50,6 +50,8 @@ export const handleFileUpload = async (options: FileUploadOptions): Promise<stri
 
   // If there's an old file URL, delete the old file
   if (oldFileUrl) {
+    console.log('oldFileUrl>>>>>>>', oldFileUrl);
+    
     const oldFileName = oldFileUrl.split('/').pop();
     const oldFile = bucket.file(oldFileName as string);
     const [exists] = await oldFile.exists();

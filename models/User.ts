@@ -46,7 +46,7 @@ const userSchema = new Schema<IUser>({
   organisation_list: [organisationSchema], // Embed the organisationSchema
   // refreshToken: {type: String}
   refreshToken: {type: String, select: false }
-});
+},{timestamps: true});
 
 const User = mongoose.model<IUser>('User', userSchema);
 
