@@ -1,5 +1,5 @@
 import { createEvent, deleteEvent, updateEvent } from "@/controllers/v1/Event";
-import { createJob, deleteJob, updateJob } from "@/controllers/v1/Job";
+import { applyToJob, createJob, deleteJob, updateJob } from "@/controllers/v1/Job";
 import { signupOrganisation, updateOrganisation } from "@/controllers/v1/Organisation";
 import { verifyToken } from "@/utils/middleware";
 import express, { Request, Response } from "express";
@@ -26,6 +26,12 @@ router.put("/update/:orgId/:jobId", verifyToken,upload.fields([
 
 //delete
 router.delete("/delete/:orgId/:jobId", verifyToken, deleteJob);
+
+//apply to job
+router.post("/apply/:jobId", verifyToken,upload.fields([
+  { name: "resume", maxCount: 1 }]), applyToJob )
+
+
 
 
 export default router;

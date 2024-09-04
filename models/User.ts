@@ -15,7 +15,7 @@ export interface IUser extends Document {
   isGoogleUser?: boolean;
   isVerified?: boolean;
   isOnboard?: boolean;
-  application_list?: string[];
+  application_list: string[];
   verifyToken?: string;
   verifyTokenExpiry?: Date;
   profile_details?: string
@@ -39,7 +39,7 @@ const userSchema = new Schema<IUser>({
   isGoogleUser: { type: Boolean, default: false },
   isVerified: { type: Boolean, default: false },
   isOnboard: { type: Boolean, default: false },
-  application_list: [{ type: Schema.Types.ObjectId, ref: 'Application' }],
+  application_list: {type: [String]},
   verifyToken: { type: String },
   verifyTokenExpiry: { type: Date},
   profile_details: { type: Schema.Types.ObjectId, ref: 'Profile'},

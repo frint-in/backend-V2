@@ -26,6 +26,8 @@ import Job from "@/models/Job";
 import mongoose from "mongoose";
 import { createJobSchema, jobPartialSchema, TcreateJobSchema, TjobPartialSchema } from "@/lib/validations/Job";
 import { isUserMaintainer } from "@/utils/helpers";
+import { applicationSchemaMain, applicationStatusSchema, TapplicationSchemaMain, TapplicationStatusSchema } from "@/lib/validations/Application";
+import Application from "@/models/Application";
 
 dotenv.config();
 
@@ -234,9 +236,6 @@ export const deleteJob = async (req: Request, res: Response) => {
 
    const {orgId, jobId} = req.params
 
-   const org = await Organisation.findById(orgId)
-
-
     const job = await Job.findById(jobId)
 
     if (!job) {
@@ -258,3 +257,92 @@ export const deleteJob = async (req: Request, res: Response) => {
   return res.status(500).json({ message: ['Internal server error'] });
 }
 }
+
+
+export const applyToJob = async (req: Request, res: Response) => {
+  try {
+      const { jobId } = req.params; // Extract the job ID from the request parameters
+      
+      const userId = req.user.id
+
+
+    // Validate input using Zod schema
+    const parsedBody = parseFormData(req.body);
+    const parsedInput = applicationSchemaMain.safeParse(parsedBody);
+    if (!parsedInput.success) {
+      const errorMessages = formatArrZodErrors(parsedInput.error);
+      return res.status(403).json({ message: errorMessages });
+    }
+
+
+    const updates: TapplicationSchemaMain = { ...parsedInput.data };
+
+      
+      const { resume, answers_list } = req.body; // Get the user ID, resume, and answers list from the request body
+
+      // Find the job by ID
+      const job = await Job.findById(jobId);
+      if (!job) {
+          return res.status(404).json({ message: ["Job not found"] });
+      }
+
+      // Find the user by ID
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: ["User not found"] });
+      }
+
+      // Check if the user has already applied for this job
+      const existingApplication = await Application.findOne({ user_id: userId, job_id: jobId });
+      if (existingApplication) {
+          return res.status(409).json({ message: ["You have already applied for this job"] });
+      }
+
+
+        // Handle file upload
+    if (isMulterFileArrayDictionary(req.files)) {
+      const resume: Express.Multer.File | undefined = req.files["resume"]
+        ? req.files["resume"][0]
+        : undefined;
+
+      if (resume) {
+        const resumeUrl = await handleFileUpload({
+          type: "resume",
+          file: resume,
+        });
+
+        if (resumeUrl) {
+          updates.resume = resumeUrl;
+        } else {
+          console.log('No file uploaded');
+        }
+      }
+    } else {
+      console.log("No files uploaded");
+    }
+
+      // Create a new application
+      const newApplication = new Application({
+          user_id: new mongoose.Types.ObjectId(userId),
+          job_id: new mongoose.Types.ObjectId(jobId),
+          ...updates
+      });
+
+      // Save the application
+      await newApplication.save();
+
+      // Update the job's application_list
+      job.application_list.push(newApplication.id);
+      await job.save();
+
+      // Update the user's application_list
+      user.application_list.push(newApplication.id);
+      await user.save();
+
+      return res.status(201).json({ message: ["Application submitted successfully"], application: newApplication });
+  } catch (error) {
+      console.error("Error applying to job:", error);
+      return res.status(500).json({ message: ["Internal server error"] });
+  }
+};
+

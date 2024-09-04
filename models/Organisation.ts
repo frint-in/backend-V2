@@ -3,23 +3,23 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IOrganisation extends Document {
   _id: mongoose.Types.ObjectId;
-  org_password?: string; 
-  org_name?: string;
-  org_email?: string;
-  org_description?: string;
-  org_website?: string;
-  org_categories?: string[];
-  org_location?: string;
-  org_phono?: number;
-  org_type?: 'non-profit' | 'for-profit' | 'government' | 'educational'; // Example literals
-  org_logo?: string;
-  org_isGoogleUser?: boolean;
-  org_refreshToken?: string;
-  org_establish?: number;
-  org_social_media?: { platform?: string; link?: string }[];
-  isVerified?: boolean;
+  org_password: string; 
+  org_name: string;
+  org_email: string;
+  org_description: string;
+  org_website: string;
+  org_categories: string[];
+  org_location: string;
+  org_phono: number;
+  org_type: 'non-profit' | 'for-profit' | 'government' | 'educational'; // Example literals
+  org_logo: string;
+  org_isGoogleUser: boolean;
+  org_refreshToken: string;
+  org_establish: number;
+  org_social_media: { platform: string; link: string }[];
+  isVerified: boolean;
   verifyToken: string;
-  isOnboard?: boolean;
+  isOnboard: boolean;
   verifyTokenExpiry: Date;
   maintainer_list: string[]
 }
